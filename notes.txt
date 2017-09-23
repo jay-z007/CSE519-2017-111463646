@@ -1,0 +1,5 @@
+We can probably split the 'fips' attribute and consider only county data as all the data entries are of the state of California
+
+We might not need to use the fips attribute because 'regionidcounty', 'regionidcity', 'regionidzip' and 'regionidneighborhood' give the same details
+
+
