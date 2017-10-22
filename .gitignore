@@ -2,3 +2,4 @@
 *.zip
 /HW2/data/
 /HW3/data/
+*.sqlite
