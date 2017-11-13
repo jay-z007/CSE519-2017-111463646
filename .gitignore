@@ -1,5 +1,7 @@
 *.csv
 *.zip
+*.pkl
 /HW2/data/
 /HW3/data/
+/Project/data/
 *.sqlite
