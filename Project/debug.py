@@ -1,15 +1,14 @@
 import numpy as np
 import pandas as pd
-import seaborn as sbn
 import pickle as pkl
 import matplotlib.pyplot as plt
 from datetime import datetime
-from sklearn.model_selection import train_test_split
-from sklearn.linear_model import LinearRegression,LogisticRegression
-from sklearn.model_selection import GridSearchCV
-from sklearn import linear_model
-from sklearn import svm
-from sklearn.neighbors import KNeighborsClassifier as KNN
+# from sklearn.model_selection import train_test_split
+# from sklearn.linear_model import LinearRegression,LogisticRegression
+# from sklearn.model_selection import GridSearchCV
+# from sklearn import linear_model
+# from sklearn import svm
+# from sklearn.neighbors import KNeighborsClassifier as KNN
 from sklearn.metrics import mean_squared_error, r2_score,mean_absolute_error,make_scorer
 from sklearn.preprocessing import MinMaxScaler,StandardScaler
 from sklearn import metrics
@@ -29,7 +28,7 @@ def eval_probs(y_prob,y_test, labels=[-1,0,1],show_plot=False):
     titles[1] = "Home Win"
 
     y_prob = pd.DataFrame(y_prob, columns=[-1, 0, 1])
-    # y_prob = y_prob.round(1)
+    y_prob = y_prob.round(2)
     y_prob['label'] = y_test.reset_index(drop=True)
     slopes= []
     
@@ -44,17 +43,27 @@ def eval_probs(y_prob,y_test, labels=[-1,0,1],show_plot=False):
             matching_len = y_prob[(y_prob[label] == i) & (y_prob['label'] == label)].shape[0]
             y_col.append(matching_len*1.0/tot_len)
         
-        slopes.append(np.polyfit(vals,y_col,deg=1)[0])    
+        slope,intercept = np.polyfit(vals,y_col,deg=1) 
+        slopes.append(slope)    
+        pred_y_points = [slope*x + intercept for x in vals]
+        plt.plot(vals,pred_y_points)
 
+        total_error = 0
+        y_true = 0
+        for y in y_col:
+            total_error+= (y_true - y)**2
+            y_true+=0.01
+        print y_true
+        total_error = total_error ** 0.5
         if show_plot:
             plt.figure(figsize=(7,21))
             plt.subplot(311+ind)
-            plt.bar(vals, y_col, width=0.05)
+            plt.bar(vals, y_col, width=0.025)
             plt.title(titles[label], fontsize=16)
             plt.xticks(np.arange(0.0, 1.1, 0.1), fontsize=15)
             plt.yticks(np.arange(0.0, 1.1, 0.1),fontsize=15)
             plt.show()
-    return mean_squared_error([1,1,1],slopes)**0.5
+    return mean_squared_error([1,1,1],slopes)**0.5,total_error
 	
 def save_model(model, model_name):
 	saved_models_root = "./saved_models/" 
@@ -97,7 +106,7 @@ def main():
 
 	
 
-	print eval_probs(y_prob, y_test, [-1,0,1],show_plot=True)
+	print eval_probs(y_prob, y_test, [-1,0,1],show_plot=False)
 
 if __name__ == '__main__':
 	main()
