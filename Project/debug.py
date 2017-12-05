@@ -15,7 +15,10 @@ import matplotlib.pyplot as plt
 # from math import log
 
 
-# import pdb; pdb.set_trace()
+import pdb; pdb.set_trace()
+def round_nearest(x, a):
+    return round(x/a) *a
+
 def eval_probs(y_prob,y_test, labels=[-1,0,1],show_plot=False):
     """
     y_prob : predict_proba output of a model
@@ -28,7 +31,10 @@ def eval_probs(y_prob,y_test, labels=[-1,0,1],show_plot=False):
     titles[1] = "Home Win"
 
     y_prob = pd.DataFrame(y_prob, columns=[-1, 0, 1])
-    y_prob = y_prob.round(1)
+#     y_prob = y_prob.round(2)
+    for key in y_prob:
+        y_prob[key] = [round_nearest(i,0.05) for i in y_prob[key]]
+    
     y_prob['label'] = y_test.reset_index(drop=True)
     slopes= []
     total_error = 0
@@ -45,22 +51,23 @@ def eval_probs(y_prob,y_test, labels=[-1,0,1],show_plot=False):
         
         index = 0
         y_true = 0
-        for i in range(10):
+        for i in range(21):
             if index == len(y_col):
                 y = 0
             else:
                 y = y_col[index]
                 index+=1
             total_error+= (y_true - y)**2
-            y_true+=0.1
-        perfect_values = [0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0]
+            y_true+=0.05
+#         perfect_values = [0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0]
+        perfect_values = [0.05*i for i in range(21)]
         if show_plot:
             plt.figure(figsize=(7,21))
             plt.subplot(311+ind)
-            plt.bar(vals, y_col, width=0.05,label="Model Performance")
+            plt.scatter(vals, y_col,label="Model Performance")
             plt.title(titles[label], fontsize=16)
-            plt.xticks(np.arange(0.0, 1.1, 0.1), fontsize=8)
-            plt.yticks(np.arange(0.0, 1.1, 0.1),fontsize=8)
+            plt.xticks([0.1*i for i in range(11)], fontsize=12)
+            plt.yticks([0.1*i for i in range(11)],fontsize=12)
             plt.plot(perfect_values,perfect_values,'r--',label="Ideal Values")
             plt.legend(loc=0)
             plt.show()
